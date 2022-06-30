@@ -12,20 +12,37 @@ If(!(Test-Path -PathType container $storepath)){
 		$storepath = Read-Host "Let's try again. Please enter the full path of directory to screenshot stash, ie X:\di\rec\tory\"
 		Write-Output "`n"
 		If(!(Test-Path -PathType container $storepath)){
-			Write-Output "Please check your directory and try your call again.`nI'll exit so we can start over."
+			Write-Output "Please check your directory and try your call again.`rI'll exit so we can start over."
 			Write-Output "`n"
 			Exit
 		}
 	} elseif($oops -match "q"){
-		Write-Output "Okay. Exit, stage left.`n"
+		Write-Output "Okay. Exit, stage left.`r"
 		Exit
 	}
 }		
 # Add toggle for verbose/silent when snaps are saved
 # Set interval between snaps
 $wait = Read-Host "How long, in seconds, between each screenshot? 2min = 120, 5min = 300, 10min = 600, etc"
-Write-Output "Thanks! Starting now."
+
+
 # Note: figure out how to input runtime and adjust
+$template = 'hh:mmtt'
+$until = Read-Host "What time do you want this to stop? Please use 12-hour time format, ie '4:30PM' or '11:15AM'."
+$confirm = Read-Host "Confirming: you want to end this at [DateTime]::ParseExact($until, $template, $null)? y/n"
+If($confirm -match "n"){
+	$until = Read-Host "What time do you want this to stop? Please use 12-hour time format, ie '4:30PM' or '11:15AM'."
+	$confirm = Read-Host "`rConfirming: you want to end this at [DateTime]::ParseExact($until, $template, $null)? y/n"
+	If($confirm -match "n"){
+		Write-Output "Please check your time and try your call again. `rI'll exit so we can start over.`n"
+		Exit
+	}
+	elseif($confirm -match "y"){
+		Write-Output "`rThanks! Starting now."
+
+# Show, road, getting on
+
+Write-Output "The first screenshot will be captured in $wait seconds."
 While ($i -le 1) 
 {
 	Start-Sleep -s $wait
