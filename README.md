@@ -1,3 +1,5 @@
 # blink
 
-PowerShell script and accompanying batch file for known-safe screenshotter.
+PowerShell script for known-safe screenshotter.
+
+Currently refining; strongly suggest running in minimized window.
