@@ -1,7 +1,8 @@
-$i=1
 # Where are we putting the screenshots?
-$storepath = Read-Host "Please enter the full path of directory to screenshot stash, ie X:\di\rec\tory"
+
+$storepath = Read-Host "`rPlease enter the full path of directory to screenshot stash, ie X:\di\rec\tory"
 Write-Output "`n"
+
 # Does the directory exist? Do we want it to? Fat-finger-flounce?
 If(!(Test-Path -PathType container $storepath)){
 	$oops = Read-Host "Folder does not exist. Shall I create it? y/n/q"
@@ -21,28 +22,38 @@ If(!(Test-Path -PathType container $storepath)){
 		Exit
 	}
 }		
-# Add toggle for verbose/silent when snaps are saved
 # Set interval between snaps
-$wait = Read-Host "`rHow long, in seconds, between each screenshot? 2min = 120, 5min = 300, 10min = 600, etc"
+[int]$wait = Read-Host "`rHow long, in seconds, between each screenshot? 2min = 120, 5min = 300, 10min = 600, etc`r"
 
 
 # Note: figure out how to input runtime and adjust
 
 $units = Read-Host "`rDo you want to run this for minutes (m) or hours (h)?"
-$length = Read-Host -Prompt "`rHow many $units do you want this to run?"
+if ($units -match "m"){
+    $chronos = "minutes"
+} elseif ($units -match "h"){
+    $chronos = "hours"
+    }
+$length = Read-Host -Prompt "`rHow many $chronos do you want this to run?"
 $length_int = [int]::Parse($length)
 
 
-$confirm = Read-Host "Confirming: you want this to run for $length $units ? y/n"
+$confirm = Read-Host "Confirming: you want this to run for $length $chronos ? y/n"
 If($confirm -match "n"){
 	$units = Read-Host "Do you want to run this for minutes (m) or hours (h)?"
-	$length = Read-Host "`rHow many units do you want this to run?"
-	$check = Read-Host "`rConfirming: you want this to run for $length $units ? y/n"
+    if ($units -match "m"){
+    $chronos = "minutes"
+} elseif ($units -match "h"){
+    $chronos = "hours"
+    }
+
+	$length = Read-Host "`rHow many $chronos do you want this to run?"
+	$check = Read-Host "`rConfirming: you want this to run for $length $chronos ? y/n"
 	If($check -match "n"){
 		Write-Output "Please check your numbers and try your call again. `rI'll exit so we can start over.`n"
 		Exit
 	}
-	elseif($check -match "y"){
+	elseif ($check -match "y"){
 		Write-Output "`rThanks! Starting now."
 	}
 }
@@ -54,18 +65,19 @@ if ($units -match "h"){
 } else {
 	($seconds = $length_int*60)
 }
-$wait_int = [int]::Parse($wait)
-$max = ($seconds/$wait_int)
 
 
-# Show, road, getting on
+# Show, road, getting on the
 
+$i = 1
 Write-Output "The first screenshot will be captured in $wait seconds."
-While ($i -le $max) 
+Write-Output "Screenshots will be saved to:"
+Write-Output $storepath
+Write-Output "You may wish to minimize this window."
+While ($i -le ($seconds/$wait)) 
 {
 	Start-Sleep -s $wait
-	$i
-	$i++
+	++$i
 $File = "$storepath\$(get-date -f 'yyyyMMddHHmm').png"
 Add-Type -AssemblyName System.Windows.Forms
 Add-type -AssemblyName System.Drawing
@@ -84,5 +96,3 @@ $graphic.CopyFromScreen($Left, $Top, 0, 0, $bitmap.Size)
 # Save to file
 $bitmap.Save($File, [System.Drawing.Imaging.ImageFormat]::Png) 
 }
-Write-Output "Screenshots saved to:"
-	Write-Output $storepath
