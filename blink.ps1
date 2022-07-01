@@ -5,7 +5,7 @@ Write-Output "`n"
 # Does the directory exist? Do we want it to? Fat-finger-flounce?
 If(!(Test-Path -PathType container $storepath)){
 	$oops = Read-Host "Folder does not exist. Shall I create it? y/n/q"
-	Write-Output "`n"
+	Write-Output "`r"
 	If($oops -match "y"){
 		New-Item -ItemType Directory -Path $storepath
 	} elseif($oops -match "n"){
@@ -23,27 +23,45 @@ If(!(Test-Path -PathType container $storepath)){
 }		
 # Add toggle for verbose/silent when snaps are saved
 # Set interval between snaps
-$wait = Read-Host "How long, in seconds, between each screenshot? 2min = 120, 5min = 300, 10min = 600, etc"
+$wait = Read-Host "`rHow long, in seconds, between each screenshot? 2min = 120, 5min = 300, 10min = 600, etc"
 
 
 # Note: figure out how to input runtime and adjust
-$template = 'hh:mmtt'
-$until = Read-Host "What time do you want this to stop? Please use 12-hour time format, ie '4:30PM' or '11:15AM'."
-$confirm = Read-Host "Confirming: you want to end this at [DateTime]::ParseExact($until, $template, $null)? y/n"
+
+$units = Read-Host "`rDo you want to run this for minutes (m) or hours (h)?"
+$length = Read-Host -Prompt "`rHow many $units do you want this to run?"
+$length_int = [int]::Parse($length)
+
+
+$confirm = Read-Host "Confirming: you want this to run for $length $units ? y/n"
 If($confirm -match "n"){
-	$until = Read-Host "What time do you want this to stop? Please use 12-hour time format, ie '4:30PM' or '11:15AM'."
-	$confirm = Read-Host "`rConfirming: you want to end this at [DateTime]::ParseExact($until, $template, $null)? y/n"
-	If($confirm -match "n"){
-		Write-Output "Please check your time and try your call again. `rI'll exit so we can start over.`n"
+	$units = Read-Host "Do you want to run this for minutes (m) or hours (h)?"
+	$length = Read-Host "`rHow many units do you want this to run?"
+	$check = Read-Host "`rConfirming: you want this to run for $length $units ? y/n"
+	If($check -match "n"){
+		Write-Output "Please check your numbers and try your call again. `rI'll exit so we can start over.`n"
 		Exit
 	}
-	elseif($confirm -match "y"){
+	elseif($check -match "y"){
 		Write-Output "`rThanks! Starting now."
+	}
+}
+
+# Parsing end time
+
+if ($units -match "h"){
+	$seconds = ($length_int*3600)
+} else {
+	($seconds = $length_int*60)
+}
+$wait_int = [int]::Parse($wait)
+$max = ($seconds/$wait_int)
+
 
 # Show, road, getting on
 
 Write-Output "The first screenshot will be captured in $wait seconds."
-While ($i -le 1) 
+While ($i -le $max) 
 {
 	Start-Sleep -s $wait
 	$i
@@ -65,6 +83,6 @@ $graphic = [System.Drawing.Graphics]::FromImage($bitmap)
 $graphic.CopyFromScreen($Left, $Top, 0, 0, $bitmap.Size)
 # Save to file
 $bitmap.Save($File, [System.Drawing.Imaging.ImageFormat]::Png) 
-Write-Output "Screenshot saved to:"
-Write-Output $File
 }
+Write-Output "Screenshots saved to:"
+	Write-Output $storepath
