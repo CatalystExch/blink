@@ -96,3 +96,4 @@ $graphic.CopyFromScreen($Left, $Top, 0, 0, $bitmap.Size)
 # Save to file
 $bitmap.Save($File, [System.Drawing.Imaging.ImageFormat]::Png) 
 }
+Exit
